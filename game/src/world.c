@@ -40,7 +40,8 @@ void DestroyBody(Body* body) {
     }
 
     // If body is the head, update
-    if (body == bodies) {
+    if (body == bodies) 
+    {
         bodies = body->next;
     }
 

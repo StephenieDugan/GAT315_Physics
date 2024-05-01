@@ -31,7 +31,7 @@ int main(void)
             body->position.y = GetRandomValue(1,450);
             
 
-            // Draw body (For now, draw a circle at body position)
+            // Draw body 
             DrawCircle(body->position.x, body->position.y, 20, BLUE);
 
             body = body->next; // Move to the next body
