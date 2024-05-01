@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <world.h>
-#include <assert.h>
 
 Body* bodies = NULL;
 int bodyCount = 0;
