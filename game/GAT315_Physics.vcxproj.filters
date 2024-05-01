@@ -23,5 +23,11 @@
     <ClInclude Include="src\body.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Integrator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mathf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

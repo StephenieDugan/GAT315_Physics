@@ -1,6 +1,6 @@
 #include <body.h>
-extern Body* bodies;
-extern int bodyCount;
+extern ncBody* ncBodies;
+extern int ncBodyCount;
 
-Body* CreateBody();
-void DestroyBody(Body* body);
+ncBody* CreateBody();
+void DestroyBody(ncBody* body);

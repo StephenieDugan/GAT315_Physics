@@ -1,32 +1,35 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include <world.h>
 
-Body* bodies = NULL;
-int bodyCount = 0;
+ncBody* ncBodies = NULL;
+int ncBodyCount = 0;
 
-Body* CreateBody() {
+ncBody* CreateBody() {
     // make space for body
-    Body* newBody = (Body*)malloc(sizeof(Body));
-    assert(newBody != NULL);
+    ncBody* body = (ncBody*)malloc(sizeof(ncBody));
+    assert(body != NULL);
 
-    newBody->prev = NULL;
-    newBody->next = bodies;
+    memset(body, 0, sizeof(ncBody));
+
+    body->prev = NULL;
+    body->next = ncBodies;
 
     // If the list isn't empty, change previous pointer to current head
-    if (bodies != NULL) {
-        bodies->prev = newBody;
+    if (ncBodies != NULL) {
+        ncBodies->prev = body;
     }
 
     // Update head to the new body
-    bodies = newBody;
+    ncBodies = body;
 
-    bodyCount++;
+    ncBodyCount++;
 
-    return newBody;
+    return body;
 }
 
-void DestroyBody(Body* body) {
+void DestroyBody(ncBody* body) {
     assert(body != NULL); // check if pointer is not NULL
 
     // if next pointer exists 
@@ -40,12 +43,12 @@ void DestroyBody(Body* body) {
     }
 
     // If body is the head, update
-    if (body == bodies) 
+    if (body == ncBodies) 
     {
-        bodies = body->next;
+        ncBodies = body->next;
     }
 
-    bodyCount--;
+    ncBodyCount--;
 
     // free memory
     free(body);
