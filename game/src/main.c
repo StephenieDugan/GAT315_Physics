@@ -25,7 +25,7 @@ int main(void)
 		Vector2 position = GetMousePosition();
 
 
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+		if (IsMouseButtonDown(0))
 		{
 			ncBody* body = CreateBody();
 			body->position = position;
@@ -55,7 +55,7 @@ int main(void)
 
 		BeginDrawing();
 		ClearBackground(BLACK);
-
+		DrawCircle((int)position.x, (int)position.y, 20, RED);
 		// draw bodies
 		body = ncBodies;
 		while (body) 
