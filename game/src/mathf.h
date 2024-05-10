@@ -16,3 +16,12 @@ inline Vector2 CreateVector2(float x, float y)
 {
 	return (Vector2){ x, y };
 }
+
+inline Vector2 GetVector2FromAngle(float angle)
+{
+	Vector2 v;
+	v.x = cosf(angle);
+	v.y = sinf(angle);
+
+	return v;
+}
