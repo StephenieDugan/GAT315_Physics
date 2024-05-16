@@ -266,10 +266,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\body.c" />
+    <ClCompile Include="src\collision.c" />
+    <ClCompile Include="src\contact.c" />
     <ClCompile Include="src\editor.c" />
     <ClCompile Include="src\Force.c" />
     <ClCompile Include="src\main.c" />
     <ClCompile Include="src\render.c" />
+    <ClCompile Include="src\Spring.c" />
     <ClCompile Include="src\world.c" />
   </ItemGroup>
   <ItemGroup>
@@ -280,12 +283,15 @@
   <ItemGroup>
     <ClInclude Include="..\raygui-master\src\raygui.h" />
     <ClInclude Include="src\body.h" />
+    <ClInclude Include="src\collision.h" />
+    <ClInclude Include="src\contact.h" />
     <ClInclude Include="src\editor 1.h" />
     <ClInclude Include="src\editor.h" />
     <ClInclude Include="src\Force.h" />
     <ClInclude Include="src\Integrator.h" />
     <ClInclude Include="src\mathf.h" />
     <ClInclude Include="src\render.h" />
+    <ClInclude Include="src\Spring.h" />
     <ClInclude Include="src\world.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

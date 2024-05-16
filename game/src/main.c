@@ -5,6 +5,9 @@
 #include "Integrator.h"
 #include "render.h"
 #include "editor.h"
+#include "Spring.h"
+#include "contact.h"
+#include "collision.h"
 
 #include "raylib.h"
 #include "raymath.h"
@@ -18,6 +21,9 @@
 //----------------------------------------------------------------------------------
 int main(void)
 {
+
+	ncBody* selectedBody = NULL;
+	ncBody* connectBody = NULL;
 	InitWindow(1500, 1200, "raylib Physics");
 	InitEditor();
 	SetTargetFPS(60);
@@ -38,6 +44,13 @@ int main(void)
 
 		UpdateEditor(position);
 
+		selectedBody = GetBodyIntersect(ncBodies, position);
+		if (selectedBody)
+		{
+			Vector2 screen = ConvertWorldToScreen(selectedBody->position);
+			DrawCircleLines(screen.x, screen.y, ConvertWorldToPixel(selectedBody->mass) + 5, YELLOW);
+		}
+		//create bodies
 		if (IsKeyDown(KEY_W))
 		{
 			for (int i = 0; i < 1; i++) 
@@ -51,8 +64,8 @@ int main(void)
 				AddBody(body);
 			}
 		}
-
-		if (!ncEditorIntersect && IsMouseButtonDown(0))
+		
+		if (!ncEditorIntersect && IsMouseButtonDown(0) || (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_CONTROL)))
 		{
 			float angle = GetRandomFloatValue(0, 360);
 			for (int i = 0; i < 1; i++) 
@@ -61,9 +74,11 @@ int main(void)
 				body->damping = ncEditorData.DampingValue;
 				body->gravityScale = ncEditorData.GravityScaleValue;
 				body->color = ColorFromHSV(GetRandomFloatValue(90, 180), 1, 1);
+				body->restitution = 0.3f;
 
-				//Vector2 force = Vector2Scale(GetVector2FromAngle((angle + GetRandomFloatValue(-30, 30)) * DEG2RAD), GetRandomFloatValue(1000, 2000));
-				//ApplyForce(body, force, FM_IMPULSE);
+				Vector2 force = Vector2Scale(GetVector2FromAngle((angle + GetRandomFloatValue(-30, 30)) * DEG2RAD), GetRandomFloatValue(1000, 2000));
+				ApplyForce(body, force, FM_FORCE);
+				AddBody(body);
 			}
 		}
 
@@ -80,8 +95,26 @@ int main(void)
 			}
 		}
 
+		//connect spring
+		if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && selectedBody)
+		{
+			connectBody = selectedBody;
+		}
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && connectBody)
+		{
+			DrawLineBodyToPosition(connectBody, position);
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT) && connectBody)
+		{
+			if (selectedBody && selectedBody != connectBody)
+			{
+				ncSpring_t* spring = CreateSpring(connectBody, selectedBody,Vector2Distance(connectBody->position,selectedBody->position), 20);
+				AddSpring(spring);
+			}
+		}
 		//ApplyForce
 		ApplyGravitationForce(ncBodies, ncEditorData.GravitationValue);
+		ApplySpringForce(ncSprings);
 
 		//update bodies
 		for (ncBody* body = ncBodies; body != NULL; body = body->next)
@@ -89,7 +122,11 @@ int main(void)
 			Step(body, dt);
 		}
 
-
+		//collision
+		ncContact_t* contacts = NULL;
+		CreateContacts(ncBodies, &contacts);
+		SeparateContacts(contacts);
+		ResolveContacts(contacts);
 
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -101,13 +138,29 @@ int main(void)
 
 		//if(!ncEditorIntersect) DrawCircle((int)position.x, (int)position.y, 10, RED);
 		// draw bodies
-		ncBody* body = ncBodies;
+		//ncBody* body = ncBodies;
 		for (ncBody* body = ncBodies; body; body = body->next)
 		{
 			// Draw body 
 			Vector2 screen = ConvertWorldToScreen(body->position);
 			DrawCircle((int)screen.x, (int)screen.y, ConvertWorldToPixel(body->mass), body->color);
 		}
+		// draw springs
+		//ncSpring_t* spring = ncSprings;
+		for (ncSpring_t* spring = ncSprings; spring; spring = spring->next)
+		{
+			// Draw body 
+			Vector2 screen1 = ConvertWorldToScreen(spring->body1->position);
+			Vector2 screen2 = ConvertWorldToScreen(spring->body2->position);
+			DrawLine((int)screen1.x, (int)screen1.y, (int)screen2.x, (int)screen2.y, YELLOW);
+		}
+		// draw contacts 
+		for (ncContact_t* contact = contacts; contact; contact = contact->next)
+		{
+			Vector2 screen = ConvertWorldToScreen(contact->body1->position);
+			DrawCircle(screen.x, screen.y, ConvertWorldToPixel(contact->body1->mass * 0.5f), RED);
+		}
+
 		DrawEditor(position);
 
 

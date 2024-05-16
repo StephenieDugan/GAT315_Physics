@@ -1,4 +1,6 @@
 #include "editor.h"
+#include "body.h"
+#include "render.h"
 #define RAYGUI_IMPLEMENTATION
 #include "../../raygui/src/raygui.h"
 
@@ -15,6 +17,9 @@ void InitEditor()
 	GuiLoadStyle("raygui/styles/cyber/style_cyber.rgs");
 	Image image = LoadImage("resources/reticle.png");
 	cursorTexture = LoadTextureFromImage(image);
+	cursorTexture.height = 50;
+	cursorTexture.width = 50;
+	UnloadImage(image);
 	HideCursor();
 
 	ncEditorData.anchor01 = (Vector2){ 950,50 };
@@ -57,4 +62,24 @@ void DrawEditor(Vector2 position)
 	DrawTexture(cursorTexture, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, WHITE);
 
 	GuiUnlock();
+}
+
+ncBody* GetBodyIntersect(ncBody* bodies, Vector2 position)
+{
+	for (ncBody* body = bodies; body; body = body->next)
+	{
+		Vector2 screen = ConvertWorldToScreen(body->position);
+		if (CheckCollisionPointCircle(position, screen, ConvertWorldToPixel(body->mass)))
+		{
+			return body;
+		}
+	}
+
+	return NULL;
+}
+
+void DrawLineBodyToPosition(ncBody* body, Vector2 position)
+{
+	Vector2 screen = ConvertWorldToScreen(body->position);
+	DrawLine((int)screen.x, (int)screen.y, (int)position.x - cursorTexture.width / 2, (int)position.y - cursorTexture.height / 2, YELLOW);
 }
