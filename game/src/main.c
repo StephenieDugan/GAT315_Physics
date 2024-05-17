@@ -126,7 +126,7 @@ int main(void)
 		ncContact_t* contacts = NULL;
 		CreateContacts(ncBodies, &contacts);
 		SeparateContacts(contacts);
-		ResolveContacts(contacts);
+		//ResolveContacts(contacts);
 
 		BeginDrawing();
 		ClearBackground(BLACK);
@@ -158,7 +158,7 @@ int main(void)
 		for (ncContact_t* contact = contacts; contact; contact = contact->next)
 		{
 			Vector2 screen = ConvertWorldToScreen(contact->body1->position);
-			DrawCircle(screen.x, screen.y, ConvertWorldToPixel(contact->body1->mass * 0.5f), RED);
+			DrawCircle(screen.x, screen.y, ConvertWorldToPixel(contact->body1->mass * 1.0f), RED);
 		}
 
 		DrawEditor(position);
