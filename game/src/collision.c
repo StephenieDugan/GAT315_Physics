@@ -81,7 +81,7 @@ void ResolveContacts(ncContact_t* contacts)
 
 		if (normalV > 0) continue;
 
-		float tim = contact->body1->inverseMass + contact->body2->inverseMass;
+		float tim = contact->body1->inverseMass + contact->body2->inverseMass; //total inverse mass between the 2 bodies
 		float impulseMagnitude = -(1 + contact->restitution) * normalV / tim;
 
 		Vector2 impulse = Vector2Scale(contact->normal, impulseMagnitude);

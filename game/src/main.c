@@ -32,9 +32,16 @@ int main(void)
 
 	//initialize world
 	ncGravity = (Vector2){ 0, -1 };
+	float fixedTimeStep = 1.0f / 60;
+	float timeAccumulator;
+
 
 	while (!WindowShouldClose())
 	{
+
+
+
+
 		float dt = GetFrameTime();
 		float fps = (float)GetFPS();
 
@@ -53,7 +60,7 @@ int main(void)
 		//create bodies
 		if (IsKeyDown(KEY_W))
 		{
-			for (int i = 0; i < 1; i++) 
+			for (int i = 0; i < 1; i++)
 			{
 				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassMinValue, ncEditorData.BodyTypeActive);
 				body->damping = ncEditorData.DampingValue;
@@ -64,11 +71,11 @@ int main(void)
 				AddBody(body);
 			}
 		}
-		
+
 		if (!ncEditorIntersect && IsMouseButtonDown(0) || (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_CONTROL)))
 		{
 			float angle = GetRandomFloatValue(0, 360);
-			for (int i = 0; i < 1; i++) 
+			for (int i = 0; i < 1; i++)
 			{
 				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassMinValue, ncEditorData.BodyTypeActive);
 				body->damping = ncEditorData.DampingValue;
@@ -108,30 +115,40 @@ int main(void)
 		{
 			if (selectedBody && selectedBody != connectBody)
 			{
-				ncSpring_t* spring = CreateSpring(connectBody, selectedBody,Vector2Distance(connectBody->position,selectedBody->position), 20);
+				ncSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), 20);
 				AddSpring(spring);
 			}
 		}
-		//ApplyForce
-		ApplyGravitationForce(ncBodies, ncEditorData.GravitationValue);
-		ApplySpringForce(ncSprings);
+		
 
-		//update bodies
-		for (ncBody* body = ncBodies; body != NULL; body = body->next)
-		{
-			Step(body, dt);
+		timeAccumulator += dt;
+		while (timeAccumulator >= fixedTimeStep) {
+			timeAccumulator = timeAccumulator - fixedTimeStep;
+
+			//ApplyForce
+			ApplyGravitationForce(ncBodies, ncEditorData.GravitationValue);
+			ApplySpringForce(ncSprings);
+
+			//update bodies
+			for (ncBody* body = ncBodies; body != NULL; body = body->next)
+			{
+				Step(body, fixedTimeStep);
+			}
+
+			//collision
+			ncContact_t* contacts = NULL;
+			CreateContacts(ncBodies, &contacts);
+			//SeparateContacts(contacts);
+			//ResolveContacts(contacts);
 		}
 
-		//collision
-		ncContact_t* contacts = NULL;
-		CreateContacts(ncBodies, &contacts);
-		SeparateContacts(contacts);
-		//ResolveContacts(contacts);
+
+		
 
 		BeginDrawing();
 		ClearBackground(BLACK);
 
-		
+
 		//stats
 		DrawText(TextFormat("FPS: %.2f (%.2fms)", fps, 1000, fps), 10, 10, 20, WHITE);
 		DrawText(TextFormat("FRAME: %.4f ", dt), 10, 30, 20, LIME);
