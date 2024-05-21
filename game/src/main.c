@@ -122,6 +122,7 @@ int main(void)
 		
 
 		timeAccumulator += dt;
+		ncContact_t* contacts = NULL;
 		while (timeAccumulator >= fixedTimeStep) {
 			timeAccumulator = timeAccumulator - fixedTimeStep;
 
@@ -136,7 +137,7 @@ int main(void)
 			}
 
 			//collision
-			ncContact_t* contacts = NULL;
+			contacts = NULL;
 			CreateContacts(ncBodies, &contacts);
 			//SeparateContacts(contacts);
 			//ResolveContacts(contacts);
