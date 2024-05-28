@@ -6,7 +6,6 @@
 
 ncBody* ncBodies = NULL;
 int ncBodyCount = 0;
-Vector2 ncGravity;
 
 ncBody* CreateBody(Vector2 position, float mass, ncBodyType bodytype)
 {
@@ -67,4 +66,20 @@ void DestroyBody(ncBody* body) {
 	// free memory
 	free(body);
 }
+/*
+void DestroyAllBodies()
+{
+	if (!*ncBodies) return;
 
+	ncBodies* body = *bodies;
+
+	while (body)
+	{
+		ncBodies* next = body->next;
+		free(body);
+		body = next;
+	}
+	*bodies = NULL;
+}
+
+*/

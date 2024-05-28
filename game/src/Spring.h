@@ -1,5 +1,4 @@
 #pragma once
-
 typedef struct ncSpring
 {
 	struct ncBody* body1;
@@ -18,3 +17,4 @@ void AddSpring(ncSpring_t* spring);
 void DestroySpring(ncSpring_t* spring);
 
 void ApplySpringForce(ncSpring_t* springs);
+void ApplyDraggingForce(struct Vector2 position, struct ncBody* dragbody, float restLength, float k, float damping);

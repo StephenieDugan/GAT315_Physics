@@ -6,13 +6,19 @@ typedef struct ncEditorData
 	Vector2 anchor01;
 
 	bool EditorBoxActive;
-	float MassMinValue;
-	float MassMaxValue;
-	float GravitationValue;
-	bool BodyTypeEditMode;
-	int BodyTypeActive;
+	float MassValue;
 	float DampingValue;
 	float GravityScaleValue;
+	float StiffnessValue;
+	float RestitutionValue;
+	float GravityValue;
+	float GravitationValue;
+	float TimeStepValue;
+	float FixedTimeStep;
+	bool BodyTypeEditMode;
+	int BodyTypeActive;
+	bool SimulateToggleActive;
+	bool ClearButtonPressed;
 
 } ncEditorData_t;
 

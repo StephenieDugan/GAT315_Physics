@@ -6,8 +6,11 @@ typedef struct ncBody ncBody;//forward declaration
 
 extern ncBody* ncBodies;
 extern int ncBodyCount;
-extern Vector2 ncGravity;
+extern Vector2;
+
+Vector2 ncGravity;
 
 ncBody* CreateBody(Vector2 position, float mass, ncBodyType bodytype);
 void AddBody(ncBody* body);
 void DestroyBody(ncBody* body);
+//void DestroyAllBodies();

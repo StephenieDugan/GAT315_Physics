@@ -80,3 +80,20 @@ void ApplySpringForce(ncSpring_t* springs)
 		ApplyForce(spring->body2, Vector2Scale(Vector2Negate(ndirection), force), FM_FORCE);
 	}
 }
+
+void ApplyDraggingForce(struct Vector2 position, struct ncBody* dragbody, float restLength, float k, float damping)
+{
+	Vector2 direction = Vector2Subtract(position, dragbody->position);//<get direction vector from body2 to body1>
+	if (direction.x == 0 && direction.y == 0) return;
+
+	float length = Vector2Length(direction); //<get length from direction>
+	float x = length - restLength; // <compute displacement from current length to resting length>;
+	float force = -k * x; //<(f = -kx) compute force using product of displacement and stiffness(k)>;
+
+	Vector2 ndirection = Vector2Normalize(direction); //<get direction normal>
+
+	float dampingForce = damping * Vector2DotProduct(dragbody->velocity, ndirection);
+	float totalForce = force + dampingForce;
+
+	ApplyForce(dragbody, Vector2Scale(ndirection, -totalForce), FM_FORCE);
+}

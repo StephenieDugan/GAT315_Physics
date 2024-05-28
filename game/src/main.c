@@ -24,6 +24,7 @@ int main(void)
 
 	ncBody* selectedBody = NULL;
 	ncBody* connectBody = NULL;
+	ncBody* draggingBody = NULL;
 	InitWindow(1500, 1200, "raylib Physics");
 	InitEditor();
 	SetTargetFPS(60);
@@ -31,15 +32,13 @@ int main(void)
 
 
 	//initialize world
-	ncGravity = (Vector2){ 0, -1 };
-	float fixedTimeStep = 1.0f / 60;
-	float timeAccumulator;
+	ncGravity = (Vector2){ 0 , ncEditorData.GravityValue };
+	float fixedTimeStep = ncEditorData.FixedTimeStep;
+	float timeAccumulator = 0.0f;
 
 
 	while (!WindowShouldClose())
 	{
-
-
 
 
 		float dt = GetFrameTime();
@@ -51,6 +50,8 @@ int main(void)
 
 		UpdateEditor(position);
 
+
+		fixedTimeStep = ncEditorData.FixedTimeStep;
 		selectedBody = GetBodyIntersect(ncBodies, position);
 		if (selectedBody)
 		{
@@ -62,11 +63,11 @@ int main(void)
 		{
 			for (int i = 0; i < 1; i++)
 			{
-				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassMinValue, ncEditorData.BodyTypeActive);
+				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassValue, ncEditorData.BodyTypeActive);
 				body->damping = ncEditorData.DampingValue;
 				body->gravityScale = ncEditorData.GravityScaleValue;
 				body->color = ColorFromHSV(GetRandomFloatValue(0, 90), 1, 1);
-				Vector2 force = Vector2Scale(GetVector2FromAngle(GetRandomFloatValue(0, 360) * DEG2RAD), GetRandomFloatValue(1000, 2000));
+				Vector2 force = Vector2Scale(GetVector2FromAngle(GetRandomFloatValue(0, 360) * DEG2RAD), GetRandomFloatValue(100, 200));
 				ApplyForce(body, force, FM_IMPULSE);
 				AddBody(body);
 			}
@@ -77,13 +78,13 @@ int main(void)
 			float angle = GetRandomFloatValue(0, 360);
 			for (int i = 0; i < 1; i++)
 			{
-				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassMinValue, ncEditorData.BodyTypeActive);
+				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassValue, ncEditorData.BodyTypeActive);
 				body->damping = ncEditorData.DampingValue;
 				body->gravityScale = ncEditorData.GravityScaleValue;
 				body->color = ColorFromHSV(GetRandomFloatValue(90, 180), 1, 1);
-				body->restitution = 0.3f;
+				body->restitution = ncEditorData.RestitutionValue;
 
-				Vector2 force = Vector2Scale(GetVector2FromAngle((angle + GetRandomFloatValue(-30, 30)) * DEG2RAD), GetRandomFloatValue(1000, 2000));
+				Vector2 force = Vector2Scale(GetVector2FromAngle((angle + GetRandomFloatValue(-30, 30)) * DEG2RAD), GetRandomFloatValue(100, 200));
 				ApplyForce(body, force, FM_FORCE);
 				AddBody(body);
 			}
@@ -91,14 +92,15 @@ int main(void)
 
 		if (IsKeyDown(KEY_S))
 		{
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 1; i++)
 			{
-				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassMinValue, ncEditorData.BodyTypeActive);
+				ncBody* body = CreateBody(ConvertScreenToWorld(position), ncEditorData.MassValue, ncEditorData.BodyTypeActive);
 				body->damping = ncEditorData.DampingValue;
 				body->gravityScale = ncEditorData.GravityScaleValue;
 				body->color = ColorFromHSV(GetRandomFloatValue(180, 270), 1, 1);
 
 				ApplyForce(body, (Vector2) { GetRandomFloatValue(-100, 100), GetRandomFloatValue(-100, 100) }, FM_IMPULSE);
+				AddBody(body);
 			}
 		}
 
@@ -115,36 +117,69 @@ int main(void)
 		{
 			if (selectedBody && selectedBody != connectBody)
 			{
-				ncSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), 20);
+				ncSpring_t* spring = CreateSpring(connectBody, selectedBody, Vector2Distance(connectBody->position, selectedBody->position), ncEditorData.StiffnessValue);
 				AddSpring(spring);
 			}
 		}
-		
 
-		timeAccumulator += dt;
-		ncContact_t* contacts = NULL;
-		while (timeAccumulator >= fixedTimeStep) {
-			timeAccumulator = timeAccumulator - fixedTimeStep;
 
-			//ApplyForce
-			ApplyGravitationForce(ncBodies, ncEditorData.GravitationValue);
-			ApplySpringForce(ncSprings);
-
-			//update bodies
-			for (ncBody* body = ncBodies; body != NULL; body = body->next)
-			{
-				Step(body, fixedTimeStep);
-			}
-
-			//collision
-			contacts = NULL;
-			CreateContacts(ncBodies, &contacts);
-			//SeparateContacts(contacts);
-			//ResolveContacts(contacts);
+		// Dragging spring force
+		if (IsKeyDown(KEY_LEFT_SHIFT) && selectedBody && IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+		{
+			draggingBody = selectedBody;
+		}
+		if (draggingBody && IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		{
+			DrawLineBodyToPosition(draggingBody, position);
+			ApplyDraggingForce(ConvertScreenToWorld(position), draggingBody,0, 20, 5);
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+		{
+			draggingBody = NULL;
 		}
 
+		// Clear simulation
+		if (ncEditorData.ClearButtonPressed)
+		{
+			while (ncBodies)
+			{
+				DestroyBody(ncBodies);
+			}
+			while (ncSprings)
+			{
+				DestroySpring(ncSprings);
+			}
+			ncEditorData.ClearButtonPressed = false;
+		}
 
 		
+		ncContact_t* contacts = NULL;
+		// Simulate physics
+		if (ncEditorData.SimulateToggleActive)
+		{
+			timeAccumulator += dt;
+			while (timeAccumulator >= fixedTimeStep)
+			{
+				timeAccumulator -= fixedTimeStep;
+
+				// Apply forces
+				ApplyGravitationForce(ncBodies, ncEditorData.GravitationValue);
+				ApplySpringForce(ncSprings);
+
+				// Update bodies
+				for (ncBody* body = ncBodies; body != NULL; body = body->next)
+				{
+					Step(body, fixedTimeStep);
+				}
+
+				// Collision
+				contacts = NULL;
+				CreateContacts(ncBodies, &contacts);
+				SeparateContacts(contacts);
+				ResolveContacts(contacts);
+			}
+		}
+
 
 		BeginDrawing();
 		ClearBackground(BLACK);
