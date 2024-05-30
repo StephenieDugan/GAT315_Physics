@@ -2,7 +2,7 @@
 #include "body.h"
 #include "render.h"
 #define RAYGUI_IMPLEMENTATION
-#include "../../raygui/src/raygui.h"
+#include "../../raygui-master/src/raygui.h"
 #define EDITOR_DATA(data) TextFormat("%0.2f", data), &data
 bool ncEditorActive = true;
 bool ncEditorIntersect = false;
@@ -14,7 +14,7 @@ Texture2D cursorTexture;
 
 void InitEditor()
 {
-	GuiLoadStyle("raygui/styles/cyber/style_cyber.rgs");
+	GuiLoadStyle("raygui-master/styles/cyber/style_cyber.rgs");
 	Image image = LoadImage("resources/reticle.png");
 	cursorTexture = LoadTextureFromImage(image);
 	cursorTexture.height = 50;
@@ -65,7 +65,7 @@ void DrawEditor(Vector2 position)
 		GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 20, ncEditorData.anchor01.y + 40, 256, 220 }, "Body");
 		GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 100, ncEditorData.anchor01.y + 300, 120, 16 }, "Gravity", EDITOR_DATA(ncEditorData.GravityValue), -1, 0);
 		GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 100, ncEditorData.anchor01.y + 330, 120, 16 }, "Gravitation", EDITOR_DATA(ncEditorData.GravitationValue), 0, 10);
-		GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 100, ncEditorData.anchor01.y + 360, 120, 16 }, "Time Step", EDITOR_DATA(ncEditorData.TimeStepValue), 20, 120);
+		GuiSliderBar((Rectangle) { ncEditorData.anchor01.x + 100, ncEditorData.anchor01.y + 360, 120, 16 }, "Time Step", EDITOR_DATA(ncEditorData.FixedTimeStep), 20, 120);
 		GuiGroupBox((Rectangle) { ncEditorData.anchor01.x + 20, ncEditorData.anchor01.y + 280, 256, 144 }, "World");
 		GuiToggle((Rectangle) { ncEditorData.anchor01.x + 180, ncEditorData.anchor01.y + 550, 88, 24 }, "Simulate", & ncEditorData.SimulateToggleActive);
 		ncEditorData.ClearButtonPressed = GuiButton((Rectangle) { ncEditorData.anchor01.x + 32, ncEditorData.anchor01.y + 550, 120, 24 }, "Clear Screen");
